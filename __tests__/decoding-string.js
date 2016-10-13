@@ -1,18 +1,18 @@
 
 import { decodeString } from '../src/index';
 
-describe('decoding a string', () => {
-  describe('given valid input', () => {
-    it('decodes successfully', () => {
-      const input = JSON.stringify('foo');
-      expect(decodeString(input)).toEqual('foo');
-    });
-  });
+test('it can decode a string with valid input', () => {
 
-  describe('given invalid input', () => {
-    it('throws an error', () => {
-      const input = 'notvalid';
-      expect(() => decodeString(input)).toThrowError();
-    });
-  });
+  const input = JSON.stringify('foo');
+  const result = decodeString(input);
+  expect(result.data).toEqual('foo');
+});
+
+test('it returns an error for invalid input', () => {
+  const input = 'notvalid';
+  const result = decodeString(input);
+  expect(result.isFailure()).toBe(true);
+  expect(result.errors).toEqual([
+    'Invalid JSON: Unexpected token o in JSON at position 1'
+  ]);
 });
