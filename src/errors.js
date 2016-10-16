@@ -1,3 +1,5 @@
+import { getType } from './types';
+
 export const wrongTypeError = ({
   field,
   expected,
@@ -10,6 +12,21 @@ export const wrongTypeError = ({
   } else {
     return `Expected field ${field} to be ${expected}, got ${actual}`
   }
+};
+
+const stripMaybe = type => {
+  const maybeRegex = /maybe\((.+)\)/i;
+  const res = maybeRegex.exec(type);
+  return res ? res[1] : null;
+}
+export const wrongMaybeDefaultError = ({
+  field,
+  expected,
+  value
+}) => {
+  const stripped = stripMaybe(expected);
+  const actualType = getType(value);
+  return `Expected default value for field ${field} to be ${stripped}, got ${value} (${actualType})`
 };
 
 export const missingFieldError = ({

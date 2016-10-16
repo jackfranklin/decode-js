@@ -3,9 +3,10 @@ import omit from 'lodash/omit';
 import {
   wrongTypeError,
   missingFieldError,
+  wrongMaybeDefaultError,
 } from './errors';
 
-import { getType } from './types';
+import { getType, isMaybe } from './types';
 
 import Result from './result';
 
@@ -55,43 +56,50 @@ export default class Decoder {
       }
     });
 
-    // TODO: could filter the keys that haven't been found
-    // rather than wrap the inside fn in a large conditional
-    Object.keys(this.keys).forEach(k => {
-      if (foundKeys.indexOf(k) === -1) {
-        // if the missing key was a maybe with a default value
-        // then we need to set the default value
-        // if the missing key is a maybe without a default
-        // then that's fine, just don't error
-        if (this.keys[k].type.name.indexOf('maybe') > -1) {
-          if (this.keys[k].type.hasOwnProperty('defaultValue')) {
-            const typeFn = this.keys[k].type;
-            if (typeFn(typeFn.defaultValue)) {
-              parsedData[k] = typeFn.defaultValue;
-            } else {
-              // TODO: error here
-              console.log('maybe default type does not match');
-            }
+    Object.keys(this.keys).filter(k => {
+      return foundKeys.indexOf(k) === -1;
+    }).forEach(k => {
+      // if the missing key was a maybe with a default value
+      // then we need to set the default value
+      // if the missing key is a maybe without a default
+      // then that's fine, just don't error
+      if (isMaybe(this.keys[k].type)) {
+        if (this.keys[k].type.hasOwnProperty('defaultValue')) {
+          const typeFn = this.keys[k].type;
+          if (typeFn(typeFn.defaultValue)) {
+            parsedData[k] = typeFn.defaultValue;
+          } else {
+            // we were given a default value, but it's an
+            // incorrect one
+            // TODO: we can check this when the decoder is created
+            // rather than after parsing everything
+            errors.push(wrongMaybeDefaultError({
+              field: k,
+              expected: this.keys[k].type.name,
+              value: typeFn.defaultValue,
+            }));
           }
-        } else {
-          errors.push(missingFieldError({
-            field: k,
-            type: this.keys[k].type.name
-          }));
         }
+      } else {
+        // if it wasn't found and it wasn't a maybe
+        // add the missing field error
+        errors.push(missingFieldError({
+          field: k,
+          type: this.keys[k].type.name
+        }));
       }
     });
 
-  return new Result({
-    parsed: parsedData,
-    errors,
-  });
-}
-
-parseKey(opts, key) {
-  this.keys[key] = {
-    name: key,
-    type: opts[key]
+    return new Result({
+      parsed: parsedData,
+      errors,
+    });
   }
-}
+
+  parseKey(opts, key) {
+    this.keys[key] = {
+      name: key,
+      type: opts[key]
+    }
+  }
 }

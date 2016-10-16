@@ -56,3 +56,5 @@ export const maybe = type => {
 
   return fn;
 }
+
+export const isMaybe = type => type.name.indexOf('maybe') > -1;

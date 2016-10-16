@@ -199,3 +199,18 @@ test('it can deal with maybes that have a default value', () => {
     city: 'Truro',
   });
 });
+
+test('errors when a maybe default value is the wrong type', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: maybe(string).withDefault(123),
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected default value for field city to be string, got 123 (number)'
+  ]);
+});
