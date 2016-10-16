@@ -2,7 +2,8 @@ import {
   createDecoder,
   decode,
   string,
-  number
+  number,
+  maybe
 } from '../src/index';
 
 test('with valid input it can decode an object', () => {
@@ -132,4 +133,69 @@ test('when there is a missing field and an extra field', () => {
   expect(decode(input, decoder).errors).toEqual([
     'Expected field age (number) in response body'
   ]);
+});
+
+test('it can deal with maybe values that are missing', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: maybe(string),
+  });
+
+  expect(decode(input, decoder).isFailure()).toBe(false);
+  expect(decode(input, decoder).data).toEqual({
+   name: 'Jack'
+ });
+});
+
+test('it can deal with maybe values that are present', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    city: 'London',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: maybe(string),
+  });
+
+  expect(decode(input, decoder).data).toEqual({
+    name: 'Jack',
+    city: 'London',
+ });
+});
+
+test('errors on maybe values with mismatch of types', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    city: 'London',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: maybe(number),
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field city to be maybe(number), got maybe(string)'
+ ]);
+});
+
+test('it can deal with maybes that have a default value', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: maybe(string).withDefault('Truro'),
+  });
+
+  expect(decode(input, decoder).data).toEqual({
+    name: 'Jack',
+    city: 'Truro',
+  });
 });

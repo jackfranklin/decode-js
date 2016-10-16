@@ -28,4 +28,6 @@ export const decode = (input, decoder) => {
 export const string = types.string;
 export const number = types.number;
 export const arrayOf = types.arrayOf;
+export const any = types.any;
+export const maybe = types.maybe;
 

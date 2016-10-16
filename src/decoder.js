@@ -43,6 +43,7 @@ export default class Decoder {
         foundKeys.push(parsedKey);
         const value = parsed[parsedKey];
         if (this.keys[parsedKey].type(value) === true) {
+          // TODO: need to deal with maybes in here?
           // do nothing
         } else {
           errors.push(wrongTypeError({
@@ -54,25 +55,43 @@ export default class Decoder {
       }
     });
 
+    // TODO: could filter the keys that haven't been found
+    // rather than wrap the inside fn in a large conditional
     Object.keys(this.keys).forEach(k => {
       if (foundKeys.indexOf(k) === -1) {
-        errors.push(missingFieldError({
-          field: k,
-          type: this.keys[k].type.name
-        }));
+        // if the missing key was a maybe with a default value
+        // then we need to set the default value
+        // if the missing key is a maybe without a default
+        // then that's fine, just don't error
+        if (this.keys[k].type.name.indexOf('maybe') > -1) {
+          if (this.keys[k].type.hasOwnProperty('defaultValue')) {
+            const typeFn = this.keys[k].type;
+            if (typeFn(typeFn.defaultValue)) {
+              parsedData[k] = typeFn.defaultValue;
+            } else {
+              // TODO: error here
+              console.log('maybe default type does not match');
+            }
+          }
+        } else {
+          errors.push(missingFieldError({
+            field: k,
+            type: this.keys[k].type.name
+          }));
+        }
       }
     });
 
-    return new Result({
-      parsed: parsedData,
-      errors,
-    });
-  }
+  return new Result({
+    parsed: parsedData,
+    errors,
+  });
+}
 
-  parseKey(opts, key) {
-    this.keys[key] = {
-      name: key,
-      type: opts[key]
-    }
+parseKey(opts, key) {
+  this.keys[key] = {
+    name: key,
+    type: opts[key]
   }
+}
 }

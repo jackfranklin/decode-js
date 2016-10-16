@@ -18,10 +18,40 @@ export const arrayOf = type => {
       return false;
     }
 
-    return input.map(i => getType(i) === type.name).every(x => x === true);
+    return input.map(type).every(x => x === true);
   }
   Object.defineProperty(fn, 'name', {
     value: `arrayOf(${type.name})`,
+  });
+
+  return fn;
+}
+
+export const any = () => true;
+
+export const maybe = type => {
+  let fn = input => {
+    // it's a maybe, so if it's not there it does pass the test
+    if (!input) return true;
+    return type(input);
+  }
+
+  Object.defineProperty(fn, 'name', {
+    value: `maybe(${type.name})`
+  });
+
+  Object.defineProperty(fn, 'withDefault', {
+    value: defaultValue => {
+      let nestedFn = x => type(x) === true;
+
+      Object.defineProperty(nestedFn, 'defaultValue', {
+        value: defaultValue
+      });
+      Object.defineProperty(nestedFn, 'name', {
+        value: `maybe(${type.name})`
+      });
+      return nestedFn;
+    }
   });
 
   return fn;
