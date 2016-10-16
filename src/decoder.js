@@ -15,10 +15,16 @@ import {
 import Result from './result';
 
 
+const nestError = (field, e) => `(nested) ${field}: ${e}`;
+
 export default class Decoder {
   constructor(opts = {}) {
     this.keys = {};
     Object.keys(opts).forEach(k => this.parseKey(opts, k));
+  }
+
+  get name() {
+    return 'decoder';
   }
 
   parse(input) {
@@ -42,20 +48,29 @@ export default class Decoder {
     let parsedData = parsed;
 
     Object.keys(parsed).forEach(parsedKey => {
+      // if we have any extra keys, just ignore them
+      // the whole point of this lib is to make it easy to
+      // pull out only the bits of data you care about
       if (this.keys[parsedKey] == undefined) {
         parsedData = omit(parsedData, parsedKey);
       } else {
         foundKeys.push(parsedKey);
         const value = parsed[parsedKey];
-        if (this.keys[parsedKey].type(value) === true) {
-          // TODO: need to deal with maybes in here?
-          // do nothing
+        if (this.keys[parsedKey].type.name === 'decoder') {
+          const decoder = this.keys[parsedKey].type;
+          const res = decoder.validate(value);
+          errors = errors.concat(res.errors.map(e => nestError(parsedKey, e)));
+          parsedData[parsedKey] = res.data;
         } else {
-          errors.push(wrongTypeError({
-            field: parsedKey,
-            expected: this.keys[parsedKey].type.name,
-            actual: getType(value)
-          }));
+          if (this.keys[parsedKey].type(value) === true) {
+            // do nothing, all is good in the world
+          } else {
+            errors.push(wrongTypeError({
+              field: parsedKey,
+              expected: this.keys[parsedKey].type.name,
+              value,
+            }));
+          }
         }
       }
     });

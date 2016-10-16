@@ -1,16 +1,27 @@
 import { getType } from './types';
 
+const prettyPrintVal = val => {
+  if (getType(val) === 'array') {
+    return '[]';
+  } else if (getType(val) === 'object') {
+    return '{}';
+  } else {
+    return val;
+  }
+}
 export const wrongTypeError = ({
   field,
   expected,
-  actual
+  value
 }) => {
+  const actual = getType(value);
   if (actual === 'array' && expected.indexOf('arrayOf') > -1) {
     return `Expected field ${field} to be ${expected}, got array of mixed types`;
   } else if (expected.indexOf('maybe') > -1) {
     return `Expected field ${field} to be ${expected}, got maybe(${actual})`;
   } else {
-    return `Expected field ${field} to be ${expected}, got ${actual}`
+    const val = prettyPrintVal(value);
+    return `Expected field ${field} to be ${expected}, got ${val} (${actual})`
   }
 };
 

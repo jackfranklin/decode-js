@@ -34,7 +34,7 @@ test('it can deal with the item not being an array', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    'Expected field numbers to be arrayOf(number), got string'
+    'Expected field numbers to be arrayOf(number), got foo (string)'
   ]);
 });
 

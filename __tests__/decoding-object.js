@@ -66,7 +66,7 @@ test('an invalid type causes an error', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    'Expected field city to be string, got number'
+    'Expected field city to be string, got 123 (number)'
   ]);
 });
 
@@ -82,7 +82,7 @@ test('an invalid nested object causes an error', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    'Expected field city to be string, got object'
+    'Expected field city to be string, got {} (object)'
   ]);
 });
 
@@ -98,7 +98,7 @@ test('an unexpected array causes an error', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    'Expected field city to be string, got array'
+    'Expected field city to be string, got [] (array)'
   ]);
 });
 
