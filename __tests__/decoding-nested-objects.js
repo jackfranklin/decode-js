@@ -3,7 +3,7 @@ import {
   decode,
   string,
   number,
-  maybe
+  object,
 } from '../src/index';
 
 test('you can nest decoders to decode nested objects', () => {
@@ -14,7 +14,7 @@ test('you can nest decoders to decode nested objects', () => {
 
   const decoder = createDecoder({
     name: string,
-    info: createDecoder({
+    info: object({
       colour: string,
     }),
   });

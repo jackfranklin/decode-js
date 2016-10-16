@@ -31,3 +31,6 @@ export const arrayOf = types.arrayOf;
 export const any = types.any;
 export const maybe = types.maybe;
 
+// the object type is just creating a nested decoder
+export const object = createDecoder;
+
