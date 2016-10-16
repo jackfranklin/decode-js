@@ -59,10 +59,5 @@ describe('maybe', () => {
       const maybeStrDef = types.maybe(types.string).withDefault('foo');
       expect(maybeStrDef(1234)).toBe(false);
     });
-
-    test('errors if the default value is not the right type', () => {
-      const maybeStrDef = types.maybe(types.string).withDefault(123);
-      expect(maybeStrDef()).toBe(false);
-    });
   })
 });

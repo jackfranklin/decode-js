@@ -6,7 +6,11 @@ import {
   wrongMaybeDefaultError,
 } from './errors';
 
-import { getType, isMaybe } from './types';
+import {
+  getType,
+  isMaybe,
+  isMaybeWithDefault,
+} from './types';
 
 import Result from './result';
 
@@ -68,16 +72,6 @@ export default class Decoder {
           const typeFn = this.keys[k].type;
           if (typeFn(typeFn.defaultValue)) {
             parsedData[k] = typeFn.defaultValue;
-          } else {
-            // we were given a default value, but it's an
-            // incorrect one
-            // TODO: we can check this when the decoder is created
-            // rather than after parsing everything
-            errors.push(wrongMaybeDefaultError({
-              field: k,
-              expected: this.keys[k].type.name,
-              value: typeFn.defaultValue,
-            }));
           }
         }
       } else {
@@ -97,9 +91,20 @@ export default class Decoder {
   }
 
   parseKey(opts, key) {
-    this.keys[key] = {
-      name: key,
-      type: opts[key]
+    const type = opts[key];
+    const name = key;
+
+    if (isMaybeWithDefault(type)) {
+      const defVal = type.defaultValue;
+      if (!type(type.defaultValue)) {
+        throw new Error(wrongMaybeDefaultError({
+          field: name,
+          expected: type.name,
+          value: type.defaultValue,
+        }));
+      }
     }
+
+    this.keys[key] = { name, type };
   }
 }
