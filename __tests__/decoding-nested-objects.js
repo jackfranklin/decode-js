@@ -39,7 +39,7 @@ test('errors in a nested decoder are pulled up to the top level and prefixed', (
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    '(nested) info: Expected field colour to be string, got 123 (number)'
+    'info: Expected field colour to be string, got 123 (number)'
   ]);
 });
 
@@ -86,6 +86,6 @@ test('it can deal with errors in deeply nested things', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    '(nested) info: (nested) height: Expected field about to be string, got 6 (number)'
+    'info: height: Expected field about to be string, got 6 (number)'
   ]);
 });

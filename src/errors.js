@@ -1,6 +1,8 @@
 import { getType } from './types';
 
 const prettyPrintVal = val => {
+  // TODO: we could nicely print the contents of these
+  // to show how many there are
   if (getType(val) === 'array') {
     return '[]';
   } else if (getType(val) === 'object') {

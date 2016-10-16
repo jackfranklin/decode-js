@@ -15,7 +15,7 @@ import {
 import Result from './result';
 
 
-const nestError = (field, e) => `(nested) ${field}: ${e}`;
+const nestError = (field, e) => `${field}: ${e}`;
 
 export default class Decoder {
   constructor(opts = {}) {
