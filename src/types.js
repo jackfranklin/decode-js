@@ -42,7 +42,11 @@ export const maybe = type => {
 
   Object.defineProperty(fn, 'withDefault', {
     value: defaultValue => {
-      let nestedFn = x => type(x) === true;
+      let nestedFn = x => {
+        // if we have a value from JSON, typecheck it
+        // if we don't, typecheck the default value
+        return x ? type(x) : type(defaultValue);
+      };
 
       Object.defineProperty(nestedFn, 'defaultValue', {
         value: defaultValue
