@@ -4,7 +4,6 @@ import Result from './result';
 import { invalidJsonError } from './errors';
 
 export const decodeString = str => {
-  // just create an object decoder and pull the values off it
   try {
     const parsed = JSON.parse(str);
     return new Result({
@@ -27,4 +26,6 @@ export const decode = (input, decoder) => {
 };
 
 export const string = types.string;
+export const number = types.number;
+export const arrayOf = types.arrayOf;
 

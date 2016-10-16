@@ -1,7 +1,8 @@
 import {
   createDecoder,
   decode,
-  string
+  string,
+  number
 } from '../src/index';
 
 test('with valid input it can decode an object', () => {
@@ -65,5 +66,70 @@ test('an invalid type causes an error', () => {
 
   expect(decode(input, decoder).errors).toEqual([
     'Expected field city to be string, got number'
+  ]);
+});
+
+test('an invalid nested object causes an error', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    city: {},
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: string,
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field city to be string, got object'
+  ]);
+});
+
+test('an unexpected array causes an error', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    city: [],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    city: string,
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field city to be string, got array'
+  ]);
+});
+
+test('it can decode numbers', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    age: 24,
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    age: number,
+  });
+
+  expect(decode(input, decoder).data).toEqual({
+    name: 'Jack',
+    age: 24
+  });
+});
+
+test('when there is a missing field and an extra field', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    city: 'foo'
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    age: number,
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field age (number) in response body'
   ]);
 });
