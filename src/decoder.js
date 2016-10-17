@@ -21,6 +21,7 @@ const nestError = (field, e) => `${field}: ${e}`;
 export default class Decoder {
   constructor(opts = {}) {
     this.keys = {};
+    this.check = this.check.bind(this);
     Object.keys(opts).forEach(k => this.parseKey(opts, k));
   }
 
@@ -67,7 +68,7 @@ export default class Decoder {
   }
 
   check(parsed) {
-    return this.validate(parsed);
+    return this.validate(parsed).errors.length === 0;
   }
 
   validate(parsed) {
@@ -102,11 +103,13 @@ export default class Decoder {
       if (skip === false) {
         foundKeys.push(parsedKey);
         const value = parsed[parsedKey];
-        if (this.keys[parsedKey].type.name.indexOf('object') > -1) {
+        const typeName = this.keys[parsedKey].type.name;
+        if (typeName.indexOf('object') > -1 && typeName.indexOf('array') === -1) {
           const decoder = this.keys[parsedKey].type;
           const res = decoder.props.validate(value);
           errors = errors.concat(res.errors.map(e => nestError(parsedKey, e)));
           parsedData[parsedKey] = res.data;
+          // return true;
         } else {
           if (this.keys[parsedKey].type.check(value) === true) {
             // do nothing, all is good in the world

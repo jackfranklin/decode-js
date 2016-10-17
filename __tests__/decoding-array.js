@@ -5,7 +5,8 @@ import {
   string,
   number,
   arrayOf,
-  any
+  any,
+  object
 } from '../src/index';
 
 test('it can decode an array of things', () => {
@@ -70,4 +71,47 @@ test('it can accept an array of any type', () => {
     name: 'Jack',
     numbers: [1, 2, 'foo'],
   });
+});
+
+test('it can be an array of objects', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    friends: [{
+      name: 'Isaac',
+    }],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    friends: arrayOf(object({
+      name: string,
+    }))
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    friends: [{
+      name: 'Isaac',
+    }],
+  });
+});
+
+test('an array of objects fails with the right error', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    friends: [{
+      firstName: 'Isaac',
+    }],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    friends: arrayOf(object({
+      name: string,
+    }))
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field friends to be arrayOf(object), got array of mixed types'
+  ]);
 });

@@ -1,4 +1,4 @@
-import { createType, getType } from './utils';
+import { createType, getType, propsAndProxy } from './utils';
 
 export const arrayOf = type => {
   return createType({
@@ -10,5 +10,6 @@ export const arrayOf = type => {
 
       return input.map(type.check).every(x => x === true);
     },
+    props: propsAndProxy({}, type),
   });
 };
