@@ -1,4 +1,5 @@
 import omit from 'lodash/omit';
+import invert from 'lodash/invert';
 
 import {
   wrongTypeError,
@@ -42,18 +43,51 @@ export default class Decoder {
     return this.validate(parsed);
   }
 
+  renames() {
+    let res = {};
+
+    const fromToMap = Object.keys(this.keys).filter(k => {
+      return this.keys[k].type.hasOwnProperty('renameFrom');
+    }).map(k => {
+      return {
+        to: k,
+        from: this.keys[k].type.renameFrom
+      };
+    }).forEach(({from, to}) => res[from] = to);
+
+    return res;
+  }
+
   validate(parsed) {
     let foundKeys = [];
     let errors = [];
     let parsedData = parsed;
+    let renamedKeys = this.renames();
 
     Object.keys(parsed).forEach(parsedKey => {
-      // if we have any extra keys, just ignore them
-      // the whole point of this lib is to make it easy to
-      // pull out only the bits of data you care about
+      let skip = false;
+
       if (this.keys[parsedKey] == undefined) {
-        parsedData = omit(parsedData, parsedKey);
-      } else {
+        // if it's a key to be renamed, we'll do the renaming now before
+        // type checking and so on
+        if (renamedKeys[parsedKey]) {
+          const oldKey = parsedKey;
+          const newKey = renamedKeys[oldKey];
+
+          const data = parsedData[oldKey];
+
+          parsedData[newKey] = data;
+          parsedKey = newKey;
+          parsedData = omit(parsedData, oldKey);
+        } else {
+          // just omit the key if we don't know about it
+          // and we're not renaming it
+          parsedData = omit(parsedData, parsedKey);
+          skip = true;
+        }
+      }
+
+      if (skip === false) {
         foundKeys.push(parsedKey);
         const value = parsed[parsedKey];
         if (this.keys[parsedKey].type.name === 'decoder') {
@@ -65,8 +99,15 @@ export default class Decoder {
           if (this.keys[parsedKey].type(value) === true) {
             // do nothing, all is good in the world
           } else {
+            const invertedRenames = invert(renamedKeys);
+
+            // if it was renamed, show the non-renamed key as the error
+            const field = invertedRenames[parsedKey] ?
+              `${invertedRenames[parsedKey]} (${parsedKey})` :
+              parsedKey;
+
             errors.push(wrongTypeError({
-              field: parsedKey,
+              field,
               expected: this.keys[parsedKey].type.name,
               value,
             }));
@@ -84,16 +125,19 @@ export default class Decoder {
       // then that's fine, just don't error
       if (isMaybe(this.keys[k].type)) {
         if (this.keys[k].type.hasOwnProperty('defaultValue')) {
-          const typeFn = this.keys[k].type;
-          if (typeFn(typeFn.defaultValue)) {
-            parsedData[k] = typeFn.defaultValue;
-          }
+          parsedData[k] = this.keys[k].type.defaultValue;
         }
       } else {
         // if it wasn't found and it wasn't a maybe
         // add the missing field error
+
+        const invertedRenames = invert(renamedKeys);
+
+        // if it was renamed, show the non-renamed key as the error
+        const field = invertedRenames[k] ?  invertedRenames[k] : k
+
         errors.push(missingFieldError({
-          field: k,
+          field,
           type: this.keys[k].type.name
         }));
       }

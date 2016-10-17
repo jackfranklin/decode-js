@@ -4,13 +4,11 @@ export const getType = input => {
   return typeof input;
 }
 
-export const string = input => {
-  return getType(input) === 'string';
-};
+export const string = input => getType(input) === 'string';
 
-export const number = input => {
-  return getType(input) === 'number';
-};
+export const number = input => getType(input) === 'number';
+
+export const bool = input => getType('input') === 'boolean';
 
 export const arrayOf = type => {
   let fn = input => {
@@ -62,3 +60,16 @@ export const isMaybe = type => type.name.indexOf('maybe') > -1;
 export const isMaybeWithDefault = type => (
   isMaybe(type) && type.hasOwnProperty('defaultValue')
 );
+
+export const renameFrom = (fieldName, type) => {
+  let nestedFn = x => type(x);
+  Object.defineProperty(nestedFn, 'name', {
+    value: type.name
+  });
+
+  Object.defineProperty(nestedFn, 'renameFrom', {
+    value: fieldName
+  });
+
+  return nestedFn;
+}
