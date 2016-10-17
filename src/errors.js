@@ -1,4 +1,4 @@
-import { getType } from './types';
+import { getType } from './types/utils';
 
 const prettyPrintVal = val => {
   // TODO: we could nicely print the contents of these

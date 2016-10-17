@@ -33,7 +33,7 @@ export default class Decoder {
   }
 
   get name() {
-    return 'decoder';
+    return 'object';
   }
 
   parse(input) {
@@ -102,7 +102,7 @@ export default class Decoder {
       if (skip === false) {
         foundKeys.push(parsedKey);
         const value = parsed[parsedKey];
-        if (this.keys[parsedKey].type.name === 'decoder') {
+        if (this.keys[parsedKey].type.name.indexOf('object') > -1) {
           const decoder = this.keys[parsedKey].type;
           const res = decoder.props.validate(value);
           errors = errors.concat(res.errors.map(e => nestError(parsedKey, e)));

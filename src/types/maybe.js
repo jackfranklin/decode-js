@@ -1,4 +1,4 @@
-import { createType } from './utils';
+import { createType, propsAndProxy } from './utils';
 
 export const maybe = type => {
   return createType({
@@ -7,6 +7,7 @@ export const maybe = type => {
       if (input === undefined) return true;
       return type.check(input);
     },
+    props: propsAndProxy({}, type),
   });
 };
 
@@ -17,8 +18,8 @@ export const maybeWithDefault = (type, defaultValue) => {
       if (input === undefined) return true;
       return type.check(input);
     },
-    props: {
+    props: propsAndProxy({
       defaultValue,
-    }
+    }, type)
   });
 }

@@ -3,6 +3,7 @@ import * as primitives from './types/primitives';
 import * as maybes from './types/maybe';
 import * as arrays from './types/array';
 import * as renames from './types/rename';
+import * as objects from './types/object';
 
 import Result from './result';
 import { invalidJsonError } from './errors';
@@ -41,8 +42,4 @@ export const arrayOf = arrays.arrayOf;
 
 export const rename = renames.rename;
 
-// the object type is just creating a nested decoder
-export const object = createDecoder;
-
-
-// export const renameFrom = types.renameFrom;
+export const object = objects.object;

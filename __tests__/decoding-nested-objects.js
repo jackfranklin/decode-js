@@ -4,6 +4,7 @@ import {
   string,
   number,
   object,
+  maybe,
 } from '../src/index';
 
 test('you can nest decoders to decode nested objects', () => {
@@ -88,4 +89,31 @@ test('it can deal with errors in deeply nested things', () => {
   expect(decode(input, decoder).errors).toEqual([
     'info: height: Expected field about to be string, got 6 (number)'
   ]);
+});
+
+test('a nested decoder can be within a maybe', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    info: {
+      height: { about: '6ft' },
+    },
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    info: createDecoder({
+      height: maybe(createDecoder({
+        about: string
+      })),
+    }),
+  });
+
+  const res = decode(input, decoder);
+  expect(res.errors).toEqual([]);
+  expect(res.data).toEqual({
+    name: 'Jack',
+    info: {
+      height: { about: '6ft' },
+    },
+  });
 });
