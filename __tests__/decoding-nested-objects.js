@@ -1,3 +1,5 @@
+import { expectNoErrorsAndData } from './utils';
+
 import {
   createDecoder,
   decode,
@@ -21,7 +23,7 @@ test('you can nest decoders to decode nested objects', () => {
     }),
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: { colour: 'red' },
   });
@@ -62,7 +64,7 @@ test('it can deeply nest things', () => {
     }),
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: { about: '6ft' },
@@ -109,9 +111,7 @@ test('a nested decoder can be within a maybe', () => {
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: { about: '6ft' },
@@ -134,9 +134,7 @@ test('a maybe nested decoder can be missing', () => {
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {}
   });
@@ -157,9 +155,7 @@ test('a maybe nested decoder can have a default and is keyed correctly', () => {
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: { about: '5ft' }
@@ -184,9 +180,7 @@ test('a nested decoder can decode a maybe', () => {
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: { about: '6ft' },
@@ -211,9 +205,7 @@ test('a nested decoder can decode a maybe that is not there', () => {
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: {},
@@ -238,9 +230,7 @@ test('a nested decoder can decode a maybe with default that is not there', () =>
     }),
   });
 
-  const res = decode(input, decoder);
-  expect(res.errors).toEqual([]);
-  expect(res.data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     info: {
       height: { about: '7ft' },

@@ -1,3 +1,5 @@
+import { expectNoErrorsAndData } from './utils';
+
 import {
   createDecoder,
   string,
@@ -20,7 +22,7 @@ test('a value can be renamed', () => {
     likesJs: rename('likes_js', boolean),
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     likesJs: true
   });

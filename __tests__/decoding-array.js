@@ -1,3 +1,4 @@
+import { expectNoErrorsAndData } from './utils';
 import {
   createDecoder,
   decode,
@@ -17,7 +18,7 @@ test('it can decode an array of things', () => {
     numbers: arrayOf(number)
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     numbers: [1, 2, 3]
   });
@@ -65,7 +66,7 @@ test('it can accept an array of any type', () => {
     numbers: arrayOf(any)
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     numbers: [1, 2, 'foo'],
   });

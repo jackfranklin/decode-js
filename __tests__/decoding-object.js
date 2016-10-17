@@ -1,3 +1,4 @@
+import { expectNoErrorsAndData } from './utils';
 import {
   createDecoder,
   decode,
@@ -17,7 +18,7 @@ test('with valid input it can decode an object', () => {
     city: string,
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     city: 'London'
   });
@@ -50,7 +51,7 @@ test('any extra fields are ignored', () => {
     city: string,
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     city: 'London'
   });
@@ -114,7 +115,7 @@ test('it can decode numbers', () => {
     age: number,
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     age: 24
   });
@@ -147,7 +148,7 @@ test('it can deal with maybe values that are missing', () => {
   });
 
   expect(decode(input, decoder).isFailure()).toBe(false);
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
    name: 'Jack'
  });
 });
@@ -163,7 +164,7 @@ test('it can deal with maybe values that are present', () => {
     city: maybe(string),
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     city: 'London',
  });
@@ -195,7 +196,7 @@ test('it can deal with maybes that have a default value', () => {
     city: maybeWithDefault(string, 'Truro'),
   });
 
-  expect(decode(input, decoder).data).toEqual({
+  expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     city: 'Truro',
   });
