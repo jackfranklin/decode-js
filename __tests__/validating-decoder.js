@@ -1,6 +1,6 @@
 import {
   createDecoder,
-  maybe,
+  maybeWithDefault,
   string,
 } from '../src/index';
 
@@ -15,7 +15,7 @@ test('a valid decoder does not error', () => {
 test('decoder with invalid maybe defaults throws', () => {
   expect(() => {
     createDecoder({
-      name: maybe(string).withDefault(123),
+      name: maybeWithDefault(string, 123),
     });
   }).toThrow('Expected default value for field name to be string, got 123 (number)');
 });

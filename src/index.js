@@ -1,5 +1,9 @@
 import Decoder from './decoder';
-import * as types from './types';
+import * as primitives from './types/primitives';
+import * as maybes from './types/maybe';
+import * as arrays from './types/array';
+import * as renames from './types/rename';
+
 import Result from './result';
 import { invalidJsonError } from './errors';
 
@@ -25,15 +29,20 @@ export const decode = (input, decoder) => {
   return decoder.parse(input);
 };
 
-export const string = types.string;
-export const number = types.number;
-export const arrayOf = types.arrayOf;
-export const any = types.any;
-export const maybe = types.maybe;
-export const boolean = types.boolean;
+export const string = primitives.string;
+export const number = primitives.number;
+export const boolean = primitives.boolean;
+export const any = primitives.any;
+
+export const maybe = maybes.maybe;
+export const maybeWithDefault = maybes.maybeWithDefault;
+
+export const arrayOf = arrays.arrayOf;
+
+export const rename = renames.rename;
 
 // the object type is just creating a nested decoder
 export const object = createDecoder;
 
 
-export const renameFrom = types.renameFrom;
+// export const renameFrom = types.renameFrom;

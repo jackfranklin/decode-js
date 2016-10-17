@@ -1,48 +1,52 @@
-import * as types from '../src/types';
+import { getType } from '../src/types/utils';
+
+import { arrayOf } from '../src/types/array';
+import { maybe, maybeWithDefault } from '../src/types/maybe';
+import { string } from '../src/types/primitives';
 
 describe('getType', () => {
   test('it figures when something is an array', () => {
-    expect(types.getType([])).toBe('array');
+    expect(getType([])).toBe('array');
   });
 
   test('it knows when something is an object', () => {
-    expect(types.getType({})).toBe('object');
+    expect(getType({})).toBe('object');
   });
 
   test('it defaults to typeof for primitives', () => {
-    ['string', 1234, true, false].forEach(t => expect(types.getType(t)).toBe(typeof t));
+    ['string', 1234, true, false].forEach(t => expect(getType(t)).toBe(typeof t));
   });
 });
 
 describe('arrayOf', () => {
-  const arrayOfStr = types.arrayOf(types.string);
+  const arrayOfStr = arrayOf(string);
 
   test('it returns true when the array conforms', () => {
-    expect(arrayOfStr(['foo'])).toBe(true);
+    expect(arrayOfStr.check(['foo'])).toBe(true);
   });
 
   test('it fails when an item in the array does not match', () => {
-    expect(arrayOfStr(['foo', 1])).toBe(false);
+    expect(arrayOfStr.check(['foo', 1])).toBe(false);
   });
 
-  test('it sets the name of the newly constructed fn', () => {
+  test('has the correct name', () => {
     expect(arrayOfStr.name).toBe('arrayOf(string)');
   });
 });
 
 describe('maybe', () => {
-  const maybeStr = types.maybe(types.string);
+  const maybeStr = maybe(string);
 
   test('it allows a value to not be present', () => {
-    expect(maybeStr(undefined)).toBe(true);
+    expect(maybeStr.check(undefined)).toBe(true);
   });
 
   test('it allows a value to be present and the right type', () => {
-    expect(maybeStr('foo')).toBe(true);
+    expect(maybeStr.check('foo')).toBe(true);
   });
 
   test('it errors on an invalid type', () => {
-    expect(maybeStr(123)).toBe(false);
+    expect(maybeStr.check(123)).toBe(false);
   });
 
   test('it sets the name of the type correctly', () => {
@@ -50,14 +54,14 @@ describe('maybe', () => {
   });
 
   describe('default value', () => {
+    const maybeStrDef = maybeWithDefault(string, 'foo');
+
     test('returns true if the default value matches the type', () => {
-      const maybeStrDef = types.maybe(types.string).withDefault('foo');
-      expect(maybeStrDef()).toBe(true);
+      expect(maybeStrDef.check()).toBe(true);
     });
 
     test('errors if the type given is incorrect', () => {
-      const maybeStrDef = types.maybe(types.string).withDefault('foo');
-      expect(maybeStrDef(1234)).toBe(false);
+      expect(maybeStrDef.check(1234)).toBe(false);
     });
   })
 });

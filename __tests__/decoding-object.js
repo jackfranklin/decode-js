@@ -3,7 +3,8 @@ import {
   decode,
   string,
   number,
-  maybe
+  maybe,
+  maybeWithDefault
 } from '../src/index';
 
 test('with valid input it can decode an object', () => {
@@ -191,7 +192,7 @@ test('it can deal with maybes that have a default value', () => {
 
   const decoder = createDecoder({
     name: string,
-    city: maybe(string).withDefault('Truro'),
+    city: maybeWithDefault(string, 'Truro'),
   });
 
   expect(decode(input, decoder).data).toEqual({

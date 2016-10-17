@@ -11,7 +11,7 @@ import {
   getType,
   isMaybe,
   isMaybeWithDefault,
-} from './types';
+} from './types/utils';
 
 import Result from './result';
 
@@ -22,6 +22,14 @@ export default class Decoder {
   constructor(opts = {}) {
     this.keys = {};
     Object.keys(opts).forEach(k => this.parseKey(opts, k));
+  }
+
+  // when the decoder is nested as a type
+  // it needs to expose its validation method
+  get props() {
+    return {
+      validate: this.validate.bind(this),
+    }
   }
 
   get name() {
@@ -47,15 +55,19 @@ export default class Decoder {
     let res = {};
 
     const fromToMap = Object.keys(this.keys).filter(k => {
-      return this.keys[k].type.hasOwnProperty('renameFrom');
+      return this.keys[k].type.props.hasOwnProperty('renameFrom');
     }).map(k => {
       return {
         to: k,
-        from: this.keys[k].type.renameFrom
+        from: this.keys[k].type.props.renameFrom
       };
     }).forEach(({from, to}) => res[from] = to);
 
     return res;
+  }
+
+  check(parsed) {
+    return this.validate(parsed);
   }
 
   validate(parsed) {
@@ -92,11 +104,11 @@ export default class Decoder {
         const value = parsed[parsedKey];
         if (this.keys[parsedKey].type.name === 'decoder') {
           const decoder = this.keys[parsedKey].type;
-          const res = decoder.validate(value);
+          const res = decoder.props.validate(value);
           errors = errors.concat(res.errors.map(e => nestError(parsedKey, e)));
           parsedData[parsedKey] = res.data;
         } else {
-          if (this.keys[parsedKey].type(value) === true) {
+          if (this.keys[parsedKey].type.check(value) === true) {
             // do nothing, all is good in the world
           } else {
             const invertedRenames = invert(renamedKeys);
@@ -124,8 +136,8 @@ export default class Decoder {
       // if the missing key is a maybe without a default
       // then that's fine, just don't error
       if (isMaybe(this.keys[k].type)) {
-        if (this.keys[k].type.hasOwnProperty('defaultValue')) {
-          parsedData[k] = this.keys[k].type.defaultValue;
+        if (this.keys[k].type.props.hasOwnProperty('defaultValue')) {
+          parsedData[k] = this.keys[k].type.props.defaultValue;
         }
       } else {
         // if it wasn't found and it wasn't a maybe
@@ -154,12 +166,12 @@ export default class Decoder {
     const name = key;
 
     if (isMaybeWithDefault(type)) {
-      const defVal = type.defaultValue;
-      if (!type(type.defaultValue)) {
+      const defVal = type.props.defaultValue;
+      if (!type.check(defVal)) {
         throw new Error(wrongMaybeDefaultError({
           field: name,
           expected: type.name,
-          value: type.defaultValue,
+          value: defVal,
         }));
       }
     }

@@ -2,9 +2,10 @@ import {
   createDecoder,
   string,
   boolean,
-  renameFrom,
+  rename,
   decode,
   maybe,
+  maybeWithDefault,
   arrayOf,
   number
 } from '../src/index';
@@ -16,7 +17,7 @@ test('a value can be renamed', () => {
   });
   const decoder = createDecoder({
     name: string,
-    likesJs: renameFrom('likes_js', boolean),
+    likesJs: rename('likes_js', boolean),
   });
 
   expect(decode(input, decoder).data).toEqual({
@@ -32,7 +33,7 @@ test('a renamed value is still type checked', () => {
   });
   const decoder = createDecoder({
     name: string,
-    likesJs: renameFrom('likes_js', string),
+    likesJs: rename('likes_js', string),
   });
 
   expect(decode(input, decoder).errors).toEqual([
@@ -46,7 +47,7 @@ test('a missing renamed field is an error', () => {
   });
   const decoder = createDecoder({
     name: string,
-    likesJs: renameFrom('likes_js', string),
+    likesJs: rename('likes_js', string),
   });
 
   expect(decode(input, decoder).errors).toEqual([
@@ -61,7 +62,7 @@ test('a maybe can be renamed', () => {
   });
   const decoder = createDecoder({
     name: string,
-    likesJs: renameFrom('likes_js', maybe(boolean)),
+    likesJs: rename('likes_js', maybe(boolean)),
   });
   const result = decode(input, decoder);
 
@@ -79,9 +80,9 @@ test('a maybe with default can be renamed', () => {
   });
   const decoder = createDecoder({
     name: string,
-    likesJs: renameFrom(
+    likesJs: rename(
       'likes_js',
-      maybe(boolean).withDefault(true)
+      maybeWithDefault(boolean, true)
     ),
   });
   const result = decode(input, decoder);
@@ -102,7 +103,7 @@ test('an array can be renamed', () => {
 
   const decoder = createDecoder({
     name: string,
-    numbers: renameFrom(
+    numbers: rename(
       'some_numbers',
       arrayOf(number)
     ),
@@ -126,7 +127,7 @@ test('a renamed array with type error errors accordingly', () => {
 
   const decoder = createDecoder({
     name: string,
-    numbers: renameFrom(
+    numbers: rename(
       'some_numbers',
       arrayOf(number)
     ),
@@ -147,7 +148,7 @@ test('a nested decoder can be renamed', () => {
 
   const decoder = createDecoder({
     name: string,
-    info: renameFrom(
+    info: rename(
       'some_info',
       createDecoder({
         colour: string,
@@ -173,7 +174,7 @@ test('a nested decoder that is renamed errors accordingly', () => {
 
   const decoder = createDecoder({
     name: string,
-    info: renameFrom(
+    info: rename(
       'some_info',
       createDecoder({
         colour: string,

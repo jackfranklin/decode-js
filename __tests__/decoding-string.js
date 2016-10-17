@@ -1,4 +1,3 @@
-
 import { decodeString } from '../src/index';
 
 test('it can decode a string with valid input', () => {
