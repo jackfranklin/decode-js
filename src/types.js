@@ -8,7 +8,7 @@ export const string = input => getType(input) === 'string';
 
 export const number = input => getType(input) === 'number';
 
-export const bool = input => getType('input') === 'boolean';
+export const boolean = input => getType(input) === 'boolean';
 
 export const arrayOf = type => {
   let fn = input => {
@@ -30,7 +30,7 @@ export const any = () => true;
 export const maybe = type => {
   let fn = input => {
     // it's a maybe, so if it's not there it does pass the test
-    if (!input) return true;
+    if (input === undefined) return true;
     return type(input);
   }
 
@@ -69,6 +69,10 @@ export const renameFrom = (fieldName, type) => {
 
   Object.defineProperty(nestedFn, 'renameFrom', {
     value: fieldName
+  });
+
+  Object.defineProperty(nestedFn, 'defaultValue', {
+    value: type.hasOwnProperty('defaultValue') && type.defaultValue,
   });
 
   return nestedFn;

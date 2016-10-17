@@ -30,7 +30,7 @@ export const number = types.number;
 export const arrayOf = types.arrayOf;
 export const any = types.any;
 export const maybe = types.maybe;
-export const bool = types.bool;
+export const boolean = types.boolean;
 
 // the object type is just creating a nested decoder
 export const object = createDecoder;
