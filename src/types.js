@@ -1,3 +1,5 @@
+import Decoder from './decoder';
+
 export const getType = input => {
   if (Array.isArray(input)) return 'array';
 
@@ -71,9 +73,20 @@ export const renameFrom = (fieldName, type) => {
     value: fieldName
   });
 
-  Object.defineProperty(nestedFn, 'defaultValue', {
-    value: type.hasOwnProperty('defaultValue') && type.defaultValue,
-  });
+  // depending on what the type is to rename
+  // we need to proxy some methods of the type onto this renameFrom type
+  // so that the decoder sees them as it expects
+  if (type.constructor === Decoder) {
+    Object.defineProperty(nestedFn, 'validate', {
+      value: type.validate.bind(type)
+    });
+  }
+
+  if (isMaybe(type)) {
+    Object.defineProperty(nestedFn, 'defaultValue', {
+      value: type.hasOwnProperty('defaultValue') && type.defaultValue,
+    });
+  }
 
   return nestedFn;
 }

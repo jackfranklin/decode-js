@@ -4,7 +4,9 @@ import {
   boolean,
   renameFrom,
   decode,
-  maybe
+  maybe,
+  arrayOf,
+  number
 } from '../src/index';
 
 test('a value can be renamed', () => {
@@ -90,4 +92,98 @@ test('a maybe with default can be renamed', () => {
     name: 'Jack',
     likesJs: true,
   });
+});
+
+test('an array can be renamed', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    some_numbers: [1, 2, 3],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    numbers: renameFrom(
+      'some_numbers',
+      arrayOf(number)
+    ),
+  });
+
+  const result = decode(input, decoder);
+
+  expect(result.errors).toEqual([]);
+
+  expect(result.data).toEqual({
+    name: 'Jack',
+    numbers: [1, 2, 3],
+  });
+});
+
+test('a renamed array with type error errors accordingly', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    some_numbers: [1, 2, 'foo'],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    numbers: renameFrom(
+      'some_numbers',
+      arrayOf(number)
+    ),
+  });
+
+  const result = decode(input, decoder);
+
+  expect(result.errors).toEqual([
+    'Expected field some_numbers (numbers) to be arrayOf(number), got array of mixed types'
+  ]);
+});
+
+test('a nested decoder can be renamed', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    some_info: { colour: 'red' },
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    info: renameFrom(
+      'some_info',
+      createDecoder({
+        colour: string,
+      }),
+    ),
+  });
+
+  const result = decode(input, decoder);
+
+  expect(result.errors).toEqual([]);
+
+  expect(result.data).toEqual({
+    name: 'Jack',
+    info: { colour: 'red' },
+  });
+});
+
+test('a nested decoder that is renamed errors accordingly', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    some_info: { colour: 123 },
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    info: renameFrom(
+      'some_info',
+      createDecoder({
+        colour: string,
+      }),
+    ),
+  });
+
+  const result = decode(input, decoder);
+
+  expect(result.errors).toEqual([
+    'info: Expected field colour to be string, got 123 (number)'
+  ]);
 });
