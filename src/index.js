@@ -3,6 +3,7 @@ import * as primitives from './types/primitives';
 import * as maybes from './types/maybe';
 import * as arrays from './types/array';
 import * as renames from './types/rename';
+import * as nulls from './types/null';
 
 import Result from './result';
 import { invalidJsonError } from './errors';
@@ -43,3 +44,6 @@ export const rename = renames.rename;
 
 // the object is just a new decoder
 export const object = input => createDecoder(input);
+
+export const nullType = nulls.nullType;
+export const nullOr = nulls.nullOr;
