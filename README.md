@@ -15,7 +15,7 @@ Given the following JSON:
 ```js
 {
   name_one: 'Jack',
-  name_two: 'Franlin',
+  name_two: 'Franklin',
   age: 24,
   favourites: {
     color: 'red',
@@ -63,3 +63,5 @@ const result = decode(input, decoder);
 ```
 
 Any errors will be under `result.errors`, and `result.data` will have the fully type checked and manipulated data.
+
+In lieu of more documentation currently, the tests demonstrate all the functionality.
