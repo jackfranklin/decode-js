@@ -101,7 +101,7 @@ export default class Decoder {
 
       if (skip === false) {
         foundKeys.push(parsedKey);
-        const value = parsed[parsedKey];
+        const value = parsedData[parsedKey];
         const typeName = this.keys[parsedKey].type.name;
         if (typeName.indexOf('object') > -1 && typeName.indexOf('array') === -1) {
           const decoder = this.keys[parsedKey].type;

@@ -8,6 +8,9 @@ import {
   object,
   maybe,
   maybeWithDefault,
+  nullOr,
+  arrayOf,
+  rename,
 } from '../src/index';
 
 test('you can nest decoders to decode nested objects', () => {
@@ -235,5 +238,43 @@ test('a nested decoder can decode a maybe with default that is not there', () =>
     info: {
       height: { about: '7ft' },
     },
+  });
+});
+
+test('nested objects in arrays', () => {
+  const input = JSON.stringify({
+    repos: [{
+      stargazers_count: 1,
+      id: 1,
+      full_name: 'foo',
+      description: null,
+      owner: {
+        login: 'jack'
+      }
+    }]
+  });
+
+  const decoder = createDecoder({
+    repos: arrayOf(object({
+      id: number,
+      repoName: rename('full_name', string),
+      stars: rename('stargazers_count', number),
+      description: nullOr('desc'),
+      owner: object({
+        user: rename('login', string)
+      })
+    }))
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    repos: [{
+      id: 1,
+      stars: 1,
+      repoName: 'foo',
+      description: 'desc',
+      owner: {
+        user: 'jack'
+      }
+    }]
   });
 });
