@@ -1,6 +1,4 @@
-import omit from 'lodash/omit';
-import invert from 'lodash/invert';
-import flatten from 'lodash/flatten';
+import { omit, invert, flatten } from './utils';
 
 import {
   wrongTypeError,

@@ -1,10 +1,14 @@
 {
   "name": "decode-js",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "npm run build-prod && npm run build-dev",
+    "build-prod": "NODE_ENV=production npm run rollup",
+    "build-dev": "NODE_ENV=development npm run rollup",
+    "rollup": "rollup --config rollup/rollup.config.js"
   },
   "keywords": [],
   "author": "",
@@ -12,14 +16,20 @@
   "devDependencies": {
     "babel-core": "6.17.0",
     "babel-jest": "16.0.0",
+    "babel-plugin-external-helpers": "6.8.0",
     "babel-polyfill": "6.16.0",
     "babel-preset-es2015": "6.16.0",
-    "jest": "16.0.1"
+    "babelrc-rollup": "3.0.0",
+    "jest": "16.0.1",
+    "rollup": "0.36.3",
+    "rollup-plugin-babel": "2.6.1",
+    "rollup-plugin-uglify": "1.0.1",
   },
-  "dependencies": {
-    "lodash": "4.16.4"
-  },
+  "dependencies": {},
   "jest": {
-    "testPathIgnorePatterns": ["/node_modules/", "/utils"]
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/utils"
+    ]
   }
 }
