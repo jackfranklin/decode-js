@@ -5,10 +5,12 @@ export const nullType = createType({
   check: i => i === null,
 });
 
-export const nullOr = defaultValue => {
+export const nullOr = (type, defaultValue) => {
   return createType({
-    name: `nullOr`,
-    check: nullType.check,
+    name: `nullOr(${type.name})`,
+    check: input => {
+      return input === null || type.check(input);
+    },
     props: {
       defaultValue,
     },

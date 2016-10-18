@@ -229,11 +229,44 @@ test('it can do nullOr', () => {
 
   const decoder = createDecoder({
     name: string,
-    foo: nullOr('bar'),
+    foo: nullOr(string, 'bar'),
   });
 
   expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     foo: 'bar',
   });
+});
+
+test('it can do nullOr', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    foo: 'foo',
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    foo: nullOr(string, 'bar'),
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    foo: 'foo',
+  });
+});
+
+test('nullOr fails correctly if the type is wrong', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    foo: 123,
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    foo: nullOr(string, 'bar'),
+  });
+
+  expect(decode(input, decoder).errors).toEqual([
+    'Expected field foo to be nullOr(string), got 123 (number)'
+  ]);
 });

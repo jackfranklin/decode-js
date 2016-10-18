@@ -126,7 +126,7 @@ export default class Decoder {
             // the type check passed
 
             // if it passed for a nullOr, we actually want to change the value
-            if (this.keys[parsedKey].type.name === 'nullOr') {
+            if (this.keys[parsedKey].type.name.indexOf('nullOr') > -1 && value === null) {
               parsedData[parsedKey] = this.keys[parsedKey].type.props.defaultValue;
             }
           } else {

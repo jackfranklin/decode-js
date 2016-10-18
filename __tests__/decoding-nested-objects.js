@@ -251,6 +251,14 @@ test('nested objects in arrays', () => {
       owner: {
         login: 'jack'
       }
+    }, {
+      stargazers_count: 1,
+      id: 1,
+      full_name: 'foo',
+      description: 'blah',
+      owner: {
+        login: 'jack'
+      }
     }]
   });
 
@@ -259,7 +267,7 @@ test('nested objects in arrays', () => {
       id: number,
       repoName: rename('full_name', string),
       stars: rename('stargazers_count', number),
-      description: nullOr('desc'),
+      description: nullOr(string, 'desc'),
       owner: object({
         user: rename('login', string)
       })
@@ -272,6 +280,14 @@ test('nested objects in arrays', () => {
       stars: 1,
       repoName: 'foo',
       description: 'desc',
+      owner: {
+        user: 'jack'
+      }
+    }, {
+      id: 1,
+      stars: 1,
+      repoName: 'foo',
+      description: 'blah',
       owner: {
         user: 'jack'
       }
