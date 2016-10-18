@@ -1,5 +1,6 @@
 import omit from 'lodash/omit';
 import invert from 'lodash/invert';
+import flatten from 'lodash/flatten';
 
 import {
   wrongTypeError,
@@ -109,7 +110,19 @@ export default class Decoder {
           const res = decoder.props.validate(value);
           errors = errors.concat(res.errors.map(e => nestError(parsedKey, e)));
           parsedData[parsedKey] = res.data;
-          // return true;
+        } else if (typeName.indexOf('arrayOf(object)') > -1) {
+          // need to run the nested decoder
+          // and then pull any errors up
+          // and map each item to be the result of running the nested obj decoder
+          const decodedData = value.map(obj => {
+            const decoder = this.keys[parsedKey].type;
+            return decoder.props.validate(obj);
+          });
+          const nestedArrayErrors = flatten(decodedData.map(d => {
+            return d.errors.map(e => nestError(`${parsedKey} ${typeName}`, e));
+          }));
+          errors = errors.concat(nestedArrayErrors);
+          parsedData[parsedKey] = flatten(decodedData.map(d => d.parsed));
         } else {
           if (this.keys[parsedKey].type.check(value) === true) {
             // do nothing, all is good in the world

@@ -6,7 +6,8 @@ import {
   number,
   arrayOf,
   any,
-  object
+  object,
+  rename
 } from '../src/index';
 
 test('it can decode an array of things', () => {
@@ -112,6 +113,29 @@ test('an array of objects fails with the right error', () => {
   });
 
   expect(decode(input, decoder).errors).toEqual([
-    'Expected field friends to be arrayOf(object), got array of mixed types'
+    'friends arrayOf(object): Expected field name (string) in response body'
   ]);
+});
+
+test('objects within arrays can be renamed', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    friends: [{
+      firstName: 'Isaac',
+    }],
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    friends: arrayOf(object({
+      name: rename('firstName', string),
+    }))
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    friends: [{
+      name: 'Isaac',
+    }],
+  });
 });
