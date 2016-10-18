@@ -5,7 +5,9 @@ import {
   string,
   number,
   maybe,
-  maybeWithDefault
+  maybeWithDefault,
+  nullType,
+  nullOr,
 } from '../src/index';
 
 test('with valid input it can decode an object', () => {
@@ -199,5 +201,39 @@ test('it can deal with maybes that have a default value', () => {
   expectNoErrorsAndData(decoder, input, {
     name: 'Jack',
     city: 'Truro',
+  });
+});
+
+test('it can deal with nulls', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    foo: null,
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    foo: nullType,
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    foo: null,
+  });
+});
+
+test('it can do nullOr', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    foo: null,
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    foo: nullOr('bar'),
+  });
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    foo: 'bar',
   });
 });

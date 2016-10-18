@@ -123,7 +123,12 @@ export default class Decoder {
           parsedData[parsedKey] = flatten(decodedData.map(d => d.parsed));
         } else {
           if (this.keys[parsedKey].type.check(value) === true) {
-            // do nothing, all is good in the world
+            // the type check passed
+
+            // if it passed for a nullOr, we actually want to change the value
+            if (this.keys[parsedKey].type.name === 'nullOr') {
+              parsedData[parsedKey] = this.keys[parsedKey].type.props.defaultValue;
+            }
           } else {
             const invertedRenames = invert(renamedKeys);
 
