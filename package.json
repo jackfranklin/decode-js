@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
+    "prepublish": "npm run build",
     "build": "npm run build-prod && npm run build-dev",
     "build-prod": "NODE_ENV=production npm run rollup",
     "build-dev": "NODE_ENV=development npm run rollup",
