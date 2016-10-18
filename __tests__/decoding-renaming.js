@@ -190,3 +190,27 @@ test('a nested decoder that is renamed errors accordingly', () => {
     'info: Expected field colour to be string, got 123 (number)'
   ]);
 });
+
+test('you can do mega cool renaming and nesting', () => {
+  const input = JSON.stringify({
+    name: 'Jack',
+    some_info: { color: 'red' },
+  });
+
+  const decoder = createDecoder({
+    name: string,
+    info: rename(
+      'some_info',
+      createDecoder({
+        colour: rename('color', string),
+      }),
+    ),
+  });
+
+  const result = decode(input, decoder);
+
+  expectNoErrorsAndData(decoder, input, {
+    name: 'Jack',
+    info: { colour: 'red' },
+  });
+});
